@@ -2,6 +2,7 @@ use crate::food_choice::{Affordability, Place};
 
 mod food_choice;
 mod queries;
+mod maps;
 
 #[tokio::main]
 async fn main() -> color_eyre::Result<()> {
@@ -15,6 +16,7 @@ async fn main() -> color_eyre::Result<()> {
         tag: Place::Home,
         effort: Affordability::Low,
     };
-    queries::write_food_choice_to_db(pool, food_choice).await?;
+    queries::write_food_choice_to_db(&pool, food_choice).await?;
+    maps::find_food_nearby().await;
     Ok(())
 }
