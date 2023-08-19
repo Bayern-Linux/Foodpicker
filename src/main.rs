@@ -15,6 +15,5 @@ async fn main() -> color_eyre::Result<()> {
         tag: Place::Home,
         effort: Affordability::Low,
     };
-    queries::write_food_choice_to_db(pool, food_choice).await?;
     Ok(())
 }
