@@ -1,4 +1,5 @@
 use crate::food_choice::{Affordability, Place};
+use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use sqlx::{Pool, Postgres};
 use std::sync::Arc;
@@ -20,12 +21,12 @@ async fn main() -> color_eyre::Result<()> {
     dotenvy::dotenv().ok();
     let pool = sqlx::postgres::PgPool::connect(&std::env::var("DATABASE_URL")?).await?;
     HttpServer::new(move || {
-        let app_state = AppState {
+        let app_state = Data::new(AppState {
             pool: Mutex::new(pool.clone()),
-        };
+        });
         App::new().app_data(app_state).service(webpage::index)
     })
-    .bind("127.60.20.1:7373")?
+    .bind("0.0.0.0:7373")?
     .run()
     .await?;
     let food_choice = food_choice::FoodChoice {
