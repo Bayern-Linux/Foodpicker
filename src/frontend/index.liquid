@@ -13,6 +13,7 @@
     <div id="food-display" class="p-4 bg-gray-100 rounded text-center">
         <p class="text-xl" id="food-name-placeholder">Picked Food</p>
         <p class="text-lg" id="food-price-placeholder">Price: </p>
+        <p class="text-md" id="food-effort-placeholder">Effort: </p>
     </div>
     <button id="select-food" class="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Select Food</button>
 </div>
@@ -98,8 +99,20 @@
                 const data = await response.json();
                 const foodNamePlaceholder = document.getElementById("food-name-placeholder");
                 const foodPricePlaceholder = document.getElementById("food-price-placeholder");
+                const foodEffortPlaceholder = document.getElementById("food-effort-placeholder");
+
                 foodNamePlaceholder.textContent = data.name;
-                foodPricePlaceholder.textContent = `Price: ${data.price}`;
+
+                // Display price using coin emojis
+                const priceEmojis = {
+                    "Low": "🪙",
+                    "Medium": "🪙🪙",
+                    "High": "🪙🪙🪙"
+                };
+                foodPricePlaceholder.textContent = `Price: ${priceEmojis[data.price]}`;
+
+                // Display effort
+                foodEffortPlaceholder.textContent = `Effort: ${data.effort}`;
 
             } else {
                 console.error("Failed to fetch data");
