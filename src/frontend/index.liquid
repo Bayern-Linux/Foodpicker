@@ -16,6 +16,13 @@
     <button id="select-food" class="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Select Food</button>
 
 </div>
+<div class="bg-white shadow p-6 rounded-lg mr-8">
+    <h1 class="text-2xl font-bold mb-4">Weekly Food Selector</h1>
+    <div id="weekly-foods" class="p-4 bg-gray-100 rounded">
+        <!-- Meals will be displayed here -->
+    </div>
+    <button id="select-weekly-food" class="mt-4 bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Select Weekly Meals</button>
+</div>
 <div class="bg-white shadow p-6 rounded-lg mt-6">
     <form id="food-form" class="mt-6">
         <label for="name" class="block font-medium text-gray-700">Name:</label>
@@ -45,6 +52,8 @@
         <button type="button" id="submit-button" class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit</button>
     </form>
 </div>
+<!-- Your HTML code remains unchanged -->
+
 <script>
     document.getElementById("submit-button").addEventListener("click", async () => {
         const formData = new FormData(document.getElementById("food-form"));
@@ -65,6 +74,8 @@
 
             if (response.ok) {
                 console.log("Data sent successfully");
+                // Clear the form after successful submission
+                document.getElementById("food-form").reset();
             } else {
                 console.error("Failed to send data");
             }
@@ -72,6 +83,7 @@
             console.error("An error occurred", error);
         }
     });
+
     document.getElementById("select-food").addEventListener("click", async () => {
         try {
             const response = await fetch("/get-food-choice", {
@@ -93,8 +105,40 @@
             console.error("An error occurred", error);
         }
     });
+    const weeklyFoodsDisplay = document.getElementById("weekly-foods");
+    const selectWeeklyButton = document.getElementById("select-weekly-food");
 
+    selectWeeklyButton.addEventListener("click", async () => {
+        try {
+            const response = await fetch("/get-food-choice-week", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                const weeklyData = await response.json();
+                weeklyFoodsDisplay.innerHTML = ""; // Clear previous content
+
+                // Loop through each meal and display them
+                for (const meal of weeklyData) {
+                    const mealElement = document.createElement("p");
+                    mealElement.textContent = meal.name;
+                    weeklyFoodsDisplay.appendChild(mealElement);
+                }
+
+            } else {
+                console.error("Failed to fetch weekly data");
+            }
+        } catch (error) {
+            console.error("An error occurred", error);
+        }
+    });
 </script>
+</body>
+</html>
+
 </body>
 </html>
 
