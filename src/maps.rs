@@ -25,6 +25,9 @@ pub async fn find_food_nearby(
         .filter(|x| {
             x.rating
                 .is_some_and(|x| x > Decimal::from_f32_retain(3.5).unwrap())
+                && x.opening_hours
+                    .clone()
+                    .is_some_and(|x| x.open_now.is_some_and(|x| x))
         })
         .collect();
     Ok(filtered_restaurants)

@@ -5,12 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Location Sender</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/htmx.org@1.6.1"></script>
 </head>
 <body class="flex items-center justify-center h-screen bg-gray-200">
-<button id="send-location-button" class="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"> Send Location</button>
+<div class="text-center">
+    <h1 class="text-2xl font-semibold mb-2">Restaurant Information</h1>
+    <button id="send-location-button" class="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700">
+        Send Location
+    </button>
+    <div id="restaurant-info" class="mt-4 hidden">
+        <h2 class="text-lg font-semibold mb-2" id="restaurant-name"></h2>
+        <p class="mb-2" id="restaurant-rating"></p>
+        <p id="restaurant-location"></p>
+    </div>
+</div>
+
 <script>
     var button = document.getElementById("send-location-button");
+    var restaurantInfo = document.getElementById("restaurant-info");
+    var restaurantName = document.getElementById("restaurant-name");
+    var restaurantRating = document.getElementById("restaurant-rating");
+    var restaurantLocation = document.getElementById("restaurant-location");
+
     button.addEventListener("click", function () {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -32,6 +47,12 @@
                         return response.json();
                     }).then(data => {
                         console.log('Success:', data);
+
+                        // Update the UI with the response data
+                        restaurantName.textContent = data.name;
+                        restaurantRating.textContent = `⭐ Rating: ${data.rating}`;
+                        restaurantLocation.textContent = `📍 Location: ${data.formatted_address}`;
+                        restaurantInfo.classList.remove("hidden");
                     }).catch((error) => {
                         console.error('Error:', error);
                     });
@@ -46,6 +67,5 @@
         }
     });
 </script>
-
 </body>
 </html>
