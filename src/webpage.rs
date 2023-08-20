@@ -1,7 +1,11 @@
 use crate::food_choice::FoodChoice;
-use crate::{queries, AppState};
+use crate::{maps, queries, AppState};
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use google_maps::LatLng;
 use liquid::{object, Template};
+use rand::prelude::SliceRandom;
+use rand::thread_rng;
+use serde::{Deserialize, Serialize};
 use std::fs::read_to_string;
 use std::path::Path;
 use tracing::info;
@@ -60,4 +64,41 @@ pub(crate) async fn get_food_choice_week(data: web::Data<AppState>) -> impl Resp
         .await
         .unwrap();
     HttpResponse::Ok().json(food_choice)
+}
+
+#[get("/restaurants")]
+pub(crate) async fn restaurants(data: web::Data<AppState>) -> impl Responder {
+    let template = liquid::ParserBuilder::with_stdlib().build().unwrap();
+    let template = template
+        .parse(read_to_string("src/frontend/maps.liquid").unwrap().as_str())
+        .unwrap();
+    HttpResponse::Ok().body(template.render(&object!({})).unwrap())
+}
+
+#[post("/location")]
+pub(crate) async fn restaurants_near_location(location_data: web::Json<LatLng>) -> impl Responder {
+    info!("Location data: {:?}", location_data);
+    let results = maps::find_food_nearby(location_data.0).await.unwrap();
+    let mut rng = thread_rng();
+    let choice = results.choose(&mut rng).unwrap();
+    HttpResponse::Ok().body(serde_json::to_string(&choice).unwrap())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    // Use this to new food as Json into the DB
+    async fn insert_into_db() {
+        let pool = sqlx::postgres::PgPool::connect(&std::env::var("DATABASE_URL").unwrap())
+            .await
+            .unwrap();
+        let food_choices: Vec<FoodChoice> = serde_json::from_str(
+            r#"
+"#,
+        )
+        .unwrap();
+        for food_choice in food_choices {
+            let _ = queries::write_food_choice_to_db(&pool, food_choice).await;
+        }
+    }
 }

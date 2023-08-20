@@ -29,6 +29,8 @@ async fn main() -> color_eyre::Result<()> {
             .service(webpage::send_food_choice)
             .service(webpage::get_food_choice)
             .service(webpage::get_food_choice_week)
+            .service(webpage::restaurants)
+            .service(webpage::restaurants_near_location)
     })
     .bind("0.0.0.0:7373")?
     .run()
