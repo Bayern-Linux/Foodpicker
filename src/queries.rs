@@ -3,7 +3,7 @@ use sqlx::{Pool, Postgres};
 
 // Write food choice to postgres.sql via sqlx
 pub async fn write_food_choice_to_db(
-    pool: Pool<Postgres>,
+    pool: &Pool<Postgres>,
     food_choice: FoodChoice,
 ) -> Result<(), sqlx::Error> {
     // TODO: Check if food_choice already exists in postgres.sql if so, update it
@@ -14,7 +14,7 @@ pub async fn write_food_choice_to_db(
         food_choice.effort as Affordability,
         food_choice.tag as Place,
     )
-    .execute(&pool)
+    .execute(pool)
     .await?;
     Ok(())
 }
