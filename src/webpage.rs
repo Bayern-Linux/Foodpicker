@@ -39,6 +39,6 @@ pub(crate) async fn send_food_choice(food_choice: web::Json<FoodChoice>) -> impl
         effort: food_choice.effort,
         tag: food_choice.tag,
     };
-    let _ = queries::write_food_choice_to_db(pool, food_choice).await;
+    let _ = queries::write_food_choice_to_db(&pool, food_choice).await;
     HttpResponse::Ok()
 }
