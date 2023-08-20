@@ -2,7 +2,6 @@ use crate::food_choice::{Affordability, Place};
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use sqlx::{Pool, Postgres};
-use std::sync::Arc;
 use tokio::sync::Mutex;
 
 mod food_choice;
@@ -33,11 +32,5 @@ async fn main() -> color_eyre::Result<()> {
     .bind("0.0.0.0:7373")?
     .run()
     .await?;
-    let food_choice = food_choice::FoodChoice {
-        name: "Pizza".to_string(),
-        price: Affordability::Low,
-        tag: Place::Home,
-        effort: Affordability::Low,
-    };
     Ok(())
 }
