@@ -147,8 +147,9 @@
                     const meal = weeklyData[i];
                     const mealDate = new Date(nextMonday.getTime() + i * 24 * 60 * 60 * 1000);
 
+                    const formattedDate = `${mealDate.getDate()}.${mealDate.getMonth() + 1}.${mealDate.getFullYear()}`;
                     const mealElement = document.createElement("p");
-                    mealElement.textContent = `${mealDate.toDateString()}: ${meal.name}`;
+                    mealElement.textContent = `${formattedDate}: ${meal.name}`;
                     weeklyFoodsDisplay.appendChild(mealElement);
                 }
 
