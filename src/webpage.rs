@@ -1,5 +1,5 @@
 use crate::food_choice::FoodChoice;
-use crate::queries;
+use crate::{queries, AppState};
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use liquid::{object, Template};
 use std::fs::read_to_string;
@@ -22,16 +22,13 @@ pub(crate) async fn index() -> HttpResponse {
         .body(body)
 }
 
-#[derive(serde::Deserialize, Debug)]
-pub struct Payload {
-    value: String,
-}
-
 #[post("/send-food-choice")]
-pub(crate) async fn send_food_choice(food_choice: web::Json<FoodChoice>) -> impl Responder {
-    let pool = sqlx::postgres::PgPool::connect(&std::env::var("DATABASE_URL").unwrap())
-        .await
-        .unwrap();
+pub(crate) async fn send_food_choice(
+    food_choice: web::Json<FoodChoice>,
+    data: web::Data<AppState>,
+) -> impl Responder {
+    // HACK: This should be a pool that is passed in from main.rs
+    let pool = data.pool.lock().await.clone();
     let food_choice = food_choice.into_inner();
     let food_choice = FoodChoice {
         name: food_choice.name,
@@ -39,6 +36,16 @@ pub(crate) async fn send_food_choice(food_choice: web::Json<FoodChoice>) -> impl
         effort: food_choice.effort,
         tag: food_choice.tag,
     };
-    let _ = queries::write_food_choice_to_db(pool, food_choice).await;
+    let _ = queries::write_food_choice_to_db(&pool, food_choice).await;
     HttpResponse::Ok()
+}
+
+#[get("/get-food-choice")]
+pub(crate) async fn get_food_choice(data: web::Data<AppState>) -> impl Responder {
+    // Todo: This function should call a random food choice from the database
+    let pool = data.pool.lock().await.clone();
+    let food_choice = queries::read_random_food_choice_from_db(&pool)
+        .await
+        .unwrap();
+    HttpResponse::Ok().json(food_choice)
 }
