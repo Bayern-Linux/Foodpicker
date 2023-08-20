@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Food Choices</title>
+</head>
+<body>
+<form id="food-form">
+    <label for="name">Name:</label>
+    <input type="text" id="name" name="name"><br><br>
+
+    <label for="price">Price:</label>
+    <select id="price" name="price">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+    </select><br><br>
+
+    <label for="effort">Effort:</label>
+    <select id="effort" name="effort">
+        <option value="Low">Low</option>
+        <option value="Medium">Medium</option>
+        <option value="High">High</option>
+    </select><br><br>
+
+    <label for="tag">Tag:</label>
+    <select id="tag" name="tag">
+        <option value="Home">Home</option>
+        <option value="Restaurant">Restaurant</option>
+        <option value="Takeout">Takeout</option>
+    </select><br><br>
+
+    <button type="button" id="submit-button">Submit</button>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Effort</th>
+        <th>Tag</th>
+    </tr>
+    </thead>
+    <tbody id="food-table-body">
+    <!-- Table rows will be dynamically added here -->
+    </tbody>
+</table>
+
+<script>
+    document.getElementById("submit-button").addEventListener("click", async () => {
+        const formData = new FormData(document.getElementById("food-form"));
+        const data = {
+            name: formData.get("name"),
+            price: formData.get("price"),
+            effort: formData.get("effort"),
+            tag: formData.get("tag"),
+        };
+
+        try {
+            const response = await fetch("/send-food-choice", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                const newTableRow = document.createElement("tr");
+                newTableRow.innerHTML = `
+                        <td>${data.name}</td>
+                        <td>${data.price}</td>
+                        <td>${data.effort}</td>
+                        <td>${data.tag}</td>
+                    `;
+                document.getElementById("food-table-body").appendChild(newTableRow);
+            } else {
+                console.error("Failed to send data");
+            }
+        } catch (error) {
+            console.error("An error occurred", error);
+        }
+    });
+</script>
+</body>
+</html>
