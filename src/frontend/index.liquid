@@ -22,6 +22,7 @@
         <!-- Meals will be displayed here -->
     </div>
     <button id="select-weekly-food" class="mt-4 bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Select Weekly Meals</button>
+    <button type="button" id="export-calendar" class="mt-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Export to Calendar</button>
 </div>
 <div class="bg-white shadow p-6 rounded-lg mt-6">
     <form id="food-form" class="mt-6">
@@ -105,8 +106,28 @@
             console.error("An error occurred", error);
         }
     });
+
+
+    function getNextMonday() {
+        const today = new Date();
+        const daysUntilNextMonday = 1 + (7 - today.getDay()) % 7;
+        const nextMonday = new Date(today.getTime() + daysUntilNextMonday * 24 * 60 * 60 * 1000);
+        return nextMonday;
+    }
+
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    const nextMonday = getNextMonday();
+    let weeklyData = []; // Store the fetched weekly data here
+
     const weeklyFoodsDisplay = document.getElementById("weekly-foods");
     const selectWeeklyButton = document.getElementById("select-weekly-food");
+
 
     selectWeeklyButton.addEventListener("click", async () => {
         try {
@@ -118,13 +139,16 @@
             });
 
             if (response.ok) {
-                const weeklyData = await response.json();
+                weeklyData = await response.json(); // Store the fetched data
                 weeklyFoodsDisplay.innerHTML = ""; // Clear previous content
 
-                // Loop through each meal and display them
-                for (const meal of weeklyData) {
+                // Loop through each meal and display them with dates
+                for (let i = 0; i < weeklyData.length; i++) {
+                    const meal = weeklyData[i];
+                    const mealDate = new Date(nextMonday.getTime() + i * 24 * 60 * 60 * 1000);
+
                     const mealElement = document.createElement("p");
-                    mealElement.textContent = meal.name;
+                    mealElement.textContent = `${mealDate.toDateString()}: ${meal.name}`;
                     weeklyFoodsDisplay.appendChild(mealElement);
                 }
 
@@ -135,10 +159,67 @@
             console.error("An error occurred", error);
         }
     });
-</script>
-</body>
-</html>
 
+    const exportButton = document.getElementById("export-calendar");
+    exportButton.addEventListener("click", async () => {
+        try {
+            const icsContent = generateICSContent(weeklyData.map((meal, index) => ({
+                id: index + 1,
+                date: new Date(nextMonday.getTime() + index * 24 * 60 * 60 * 1000),
+                name: meal.name,
+            })));
+
+            const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+            const blobUrl = URL.createObjectURL(blob);
+
+            const downloadLink = document.createElement("a");
+            downloadLink.href = blobUrl;
+            downloadLink.download = "calendar.ics";
+            downloadLink.click();
+
+            URL.revokeObjectURL(blobUrl);
+
+        } catch (error) {
+            console.error("An error occurred", error);
+        }
+    });
+
+    function generateICSContent(events) {
+        const icsLines = [
+            "BEGIN:VCALENDAR",
+            "VERSION:2.0",
+            "PRODID:-//Random Food Selector//EN",
+            "CALSCALE:GREGORIAN",
+            "METHOD:PUBLISH"
+        ];
+
+        events.forEach(event => {
+            icsLines.push("BEGIN:VEVENT");
+            icsLines.push(`UID:${event.id}`);
+            icsLines.push(`DTSTAMP:${formatICSDate(new Date())}`);
+            icsLines.push(`DTSTART:${formatICSDate(event.date)}`);
+            icsLines.push(`SUMMARY:${event.name}`);
+            icsLines.push("END:VEVENT");
+        });
+
+        icsLines.push("END:VCALENDAR");
+        return icsLines.join("\r\n");
+    }
+
+    function formatICSDate(date) {
+        const year = date.getUTCFullYear();
+        const month = padNumber(date.getUTCMonth() + 1);
+        const day = padNumber(date.getUTCDate());
+        const hours = padNumber(date.getUTCHours() +1);
+        const minutes = padNumber(date.getUTCMinutes());
+        const seconds = padNumber(date.getUTCSeconds());
+        return `${year}${month}${day}T${hours}${minutes}${seconds}Z`;
+    }
+
+    function padNumber(number) {
+        return number.toString().padStart(2, '0');
+    }
+</script>
 </body>
 </html>
 

@@ -1,4 +1,4 @@
-use crate::food_choice::FoodChoice;
+use crate::food_choice::{Calendar, FoodChoice};
 use crate::{maps, queries, AppState};
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use google_maps::LatLng;
@@ -64,6 +64,14 @@ pub(crate) async fn get_food_choice_week(data: web::Data<AppState>) -> impl Resp
         .await
         .unwrap();
     HttpResponse::Ok().json(food_choice)
+}
+#[post("/export-to-calendar")]
+pub async fn export_to_calendar(
+    calendar_data: web::Json<Calendar>,
+) -> Result<HttpResponse, actix_web::Error> {
+    println!("{:?}", calendar_data);
+
+    Ok(HttpResponse::Ok().finish())
 }
 
 #[get("/restaurants")]
