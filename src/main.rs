@@ -24,7 +24,11 @@ async fn main() -> color_eyre::Result<()> {
         let app_state = Data::new(AppState {
             pool: Mutex::new(pool.clone()),
         });
-        App::new().app_data(app_state).service(webpage::index)
+        App::new()
+            .app_data(app_state)
+            .service(webpage::index)
+            .service(webpage::send_food_choice)
+            .service(webpage::get_food_choice)
     })
     .bind("0.0.0.0:7373")?
     .run()

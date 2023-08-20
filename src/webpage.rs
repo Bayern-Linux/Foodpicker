@@ -4,6 +4,7 @@ use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use liquid::{object, Template};
 use std::fs::read_to_string;
 use std::path::Path;
+use tracing::info;
 
 pub(crate) fn liquid_parse(path: impl AsRef<Path>) -> Template {
     let compiler = liquid::ParserBuilder::with_stdlib()
@@ -42,6 +43,8 @@ pub(crate) async fn send_food_choice(
 
 #[get("/get-food-choice")]
 pub(crate) async fn get_food_choice(data: web::Data<AppState>) -> impl Responder {
+    // TODO: Get a tag so it can only return a food choice that matches that tag
+    info!("Getting food choice");
     // Todo: This function should call a random food choice from the database
     let pool = data.pool.lock().await.clone();
     let food_choice = queries::read_random_food_choice_from_db(&pool)
