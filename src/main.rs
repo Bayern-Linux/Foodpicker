@@ -30,15 +30,10 @@ async fn main() -> color_eyre::Result<()> {
             .service(webpage::get_food_choice)
             .service(webpage::restaurants)
             .service(webpage::restaurants_near_location)
+            .service(webpage::get_food_choice_week)
     })
     .bind("0.0.0.0:7373")?
     .run()
     .await?;
-    let food_choice = food_choice::FoodChoice {
-        name: "Pizza".to_string(),
-        price: Affordability::Low,
-        tag: Place::Home,
-        effort: Affordability::Low,
-    };
     Ok(())
 }
