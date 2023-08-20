@@ -32,20 +32,6 @@
     <button type="button" id="submit-button">Submit</button>
 </form>
 
-<table>
-    <thead>
-    <tr>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Effort</th>
-        <th>Tag</th>
-    </tr>
-    </thead>
-    <tbody id="food-table-body">
-    <!-- Table rows will be dynamically added here -->
-    </tbody>
-</table>
-
 <script>
     document.getElementById("submit-button").addEventListener("click", async () => {
         const formData = new FormData(document.getElementById("food-form"));
@@ -55,7 +41,6 @@
             effort: formData.get("effort"),
             tag: formData.get("tag"),
         };
-
         try {
             const response = await fetch("/send-food-choice", {
                 method: "POST",
@@ -66,14 +51,7 @@
             });
 
             if (response.ok) {
-                const newTableRow = document.createElement("tr");
-                newTableRow.innerHTML = `
-                        <td>${data.name}</td>
-                        <td>${data.price}</td>
-                        <td>${data.effort}</td>
-                        <td>${data.tag}</td>
-                    `;
-                document.getElementById("food-table-body").appendChild(newTableRow);
+                console.log("Data sent successfully");
             } else {
                 console.error("Failed to send data");
             }
