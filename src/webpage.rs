@@ -45,9 +45,18 @@ pub(crate) async fn send_food_choice(
 pub(crate) async fn get_food_choice(data: web::Data<AppState>) -> impl Responder {
     // TODO: Get a tag so it can only return a food choice that matches that tag
     info!("Getting food choice");
-    // Todo: This function should call a random food choice from the database
     let pool = data.pool.lock().await.clone();
-    let food_choice = queries::read_random_food_choice_from_db(&pool)
+    let food_choice = queries::read_random_food_choice_from_db(&pool, 1)
+        .await
+        .unwrap();
+    HttpResponse::Ok().json(food_choice.first())
+}
+#[get("/get-food-choice-week")]
+pub(crate) async fn get_food_choice_week(data: web::Data<AppState>) -> impl Responder {
+    // TODO: Get a tag so it can only return a food choice that matches that tag
+    info!("Getting food choice");
+    let pool = data.pool.lock().await.clone();
+    let food_choice = queries::read_random_food_choice_from_db(&pool, 7)
         .await
         .unwrap();
     HttpResponse::Ok().json(food_choice)
