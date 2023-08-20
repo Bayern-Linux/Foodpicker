@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Sender</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.6.1"></script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-200">
+<button id="send-location-button" class="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"> Send Location</button>
+<script>
+    var button = document.getElementById("send-location-button");
+    button.addEventListener("click", function () {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    var data = JSON.stringify({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    });
+                    fetch('/location', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: data
+                    }).then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    }).then(data => {
+                        console.log('Success:', data);
+                    }).catch((error) => {
+                        console.error('Error:', error);
+                    });
+                },
+                function errorCallback(error) {
+                    console.error("Error getting location:", error);
+                },
+                { enableHighAccuracy: true }
+            );
+        } else {
+            console.error("Geolocation is not supported by this browser.");
+        }
+    });
+</script>
+
+</body>
+</html>

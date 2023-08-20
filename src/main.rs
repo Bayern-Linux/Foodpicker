@@ -2,7 +2,6 @@ use crate::food_choice::{Affordability, Place};
 use actix_web::web::Data;
 use actix_web::{App, HttpServer};
 use sqlx::{Pool, Postgres};
-use std::sync::Arc;
 use tokio::sync::Mutex;
 
 mod food_choice;
@@ -29,6 +28,8 @@ async fn main() -> color_eyre::Result<()> {
             .service(webpage::index)
             .service(webpage::send_food_choice)
             .service(webpage::get_food_choice)
+            .service(webpage::restaurants)
+            .service(webpage::restaurants_near_location)
     })
     .bind("0.0.0.0:7373")?
     .run()

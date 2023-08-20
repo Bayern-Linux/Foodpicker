@@ -17,3 +17,5 @@ tokio = { version = "1.11.0", features = ["full"] }
 liquid = "0.26.3"
 actix-web = "4.3.1"
 google_maps = { version= "3.3.0", features= ["rustls", "tokio", "places"] }
+serde_json = "1.0.105"
+rand = "0.8.5"
