@@ -12,6 +12,7 @@
     <p class="mb-4">Not sure what to eat? Let us decide for you!</p>
     <div id="food-display" class="p-4 bg-gray-100 rounded text-center">
         <p class="text-xl" id="food-name-placeholder">Picked Food</p>
+        <p class="text-lg" id="food-price-placeholder">Price: </p>
     </div>
     <button id="select-food" class="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Select Food</button>
 </div>
@@ -31,9 +32,9 @@
 
         <label for="price" class="block font-medium text-gray-700 mt-4">Price:</label>
         <select id="price" name="price" class="mt-1 p-1 block w-full rounded border-gray-300 shadow-sm">
-            <option value="🪙">Low 🪙</option>
-            <option value="🪙🪙">Medium 🪙🪙</option>
-            <option value="🪙🪙🪙">High 🪙🪙🪙</option>
+            <option value="Low">Low 🪙</option>
+            <option value="Medium">Medium 🪙🪙</option>
+            <option value="High">High 🪙🪙🪙</option>
         </select>
 
         <label for="effort" class="block font-medium text-gray-700 mt-4">Effort:</label>
@@ -96,7 +97,9 @@
             if (response.ok) {
                 const data = await response.json();
                 const foodNamePlaceholder = document.getElementById("food-name-placeholder");
+                const foodPricePlaceholder = document.getElementById("food-price-placeholder");
                 foodNamePlaceholder.textContent = data.name;
+                foodPricePlaceholder.textContent = `Price: ${data.price}`;
 
             } else {
                 console.error("Failed to fetch data");
