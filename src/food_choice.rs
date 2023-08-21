@@ -22,3 +22,9 @@ pub struct FoodChoice {
     pub(crate) effort: Affordability,
     pub(crate) tag: Place,
 }
+
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
+pub struct Calendar {
+    pub(crate) dates: Vec<String>,
+    pub(crate) food_choices: Vec<FoodChoice>,
+}
