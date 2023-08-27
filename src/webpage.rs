@@ -1,4 +1,4 @@
-use crate::food_choice::{Calendar, FoodChoice};
+use crate::food_choice::{Calendar, FoodChoice, Place};
 use crate::{maps, queries, AppState};
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use google_maps::LatLng;
@@ -45,12 +45,12 @@ pub(crate) async fn send_food_choice(
     HttpResponse::Ok()
 }
 
-#[get("/get-food-choice")]
-pub(crate) async fn get_food_choice(data: web::Data<AppState>) -> impl Responder {
+#[get("/get-food-choice?tag={tag}")]
+pub(crate) async fn get_food_choice(data: web::Data<AppState>, tag: web::Query<Place>) -> impl Responder {
     // TODO: Get a tag so it can only return a food choice that matches that tag
     info!("Getting food choice");
     let pool = data.pool.lock().await.clone();
-    let food_choice = queries::read_random_food_choice_from_db(&pool, 1)
+    let food_choice = queries::read_random_food_choice_from_db(&pool, 1, tag)
         .await
         .unwrap();
     HttpResponse::Ok().json(food_choice.first())

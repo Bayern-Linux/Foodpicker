@@ -52,10 +52,12 @@ pub async fn read_food_choice_from_db(
 pub async fn read_random_food_choice_from_db(
     pool: &Pool<Postgres>,
     amount: i64,
+    tag: Place,
 ) -> Result<Vec<FoodChoice>, sqlx::Error> {
     let food_choices = sqlx::query_as!(
         FoodChoice,
-        r#"SELECT name, price as "price: _", effort as "effort: _", tag as "tag: _" FROM food_choice ORDER BY RANDOM() LIMIT $1"#,
+        r#"SELECT name, price as "price: _", effort as "effort: _", tag as "tag: _" FROM food_choice WHERE tag = $1 ORDER BY RANDOM() LIMIT $2"#,
+        tag as Place,
         amount
     )
         .fetch_all(pool)
