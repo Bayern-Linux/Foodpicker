@@ -12,10 +12,12 @@
     <p class="mb-4">Not sure what to eat? Let us decide for you!</p>
     <div id="food-display" class="p-4 bg-gray-100 rounded text-center">
         <p class="text-xl" id="food-name-placeholder">Picked Food</p>
+        <p class="text-lg" id="food-price-placeholder">Price: </p>
+        <p class="text-md" id="food-effort-placeholder">Effort: </p>
     </div>
     <button id="select-food" class="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Select Food</button>
-
 </div>
+
 <div class="bg-white shadow p-6 rounded-lg mr-8">
     <h1 class="text-2xl font-bold mb-4">Weekly Food Selector</h1>
     <div id="weekly-foods" class="p-4 bg-gray-100 rounded">
@@ -24,6 +26,7 @@
     <button id="select-weekly-food" class="mt-4 bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600">Select Weekly Meals</button>
     <button type="button" id="export-calendar" class="mt-6 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Export to Calendar</button>
 </div>
+
 <div class="bg-white shadow p-6 rounded-lg mt-6">
     <form id="food-form" class="mt-6">
         <label for="name" class="block font-medium text-gray-700">Name:</label>
@@ -31,9 +34,9 @@
 
         <label for="price" class="block font-medium text-gray-700 mt-4">Price:</label>
         <select id="price" name="price" class="mt-1 p-1 block w-full rounded border-gray-300 shadow-sm">
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
+            <option value="Low">Low 🪙</option>
+            <option value="Medium">Medium 🪙🪙</option>
+            <option value="High">High 🪙🪙🪙</option>
         </select>
 
         <label for="effort" class="block font-medium text-gray-700 mt-4">Effort:</label>
@@ -53,7 +56,6 @@
         <button type="button" id="submit-button" class="mt-6 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Submit</button>
     </form>
 </div>
-<!-- Your HTML code remains unchanged -->
 
 <script>
     document.getElementById("submit-button").addEventListener("click", async () => {
@@ -97,7 +99,21 @@
             if (response.ok) {
                 const data = await response.json();
                 const foodNamePlaceholder = document.getElementById("food-name-placeholder");
+                const foodPricePlaceholder = document.getElementById("food-price-placeholder");
+                const foodEffortPlaceholder = document.getElementById("food-effort-placeholder");
+
                 foodNamePlaceholder.textContent = data.name;
+
+                // Display price using coin emojis
+                const priceEmojis = {
+                    "Low": "🪙",
+                    "Medium": "🪙🪙",
+                    "High": "🪙🪙🪙"
+                };
+                foodPricePlaceholder.textContent = `Price: ${priceEmojis[data.price]}`;
+
+                // Display effort
+                foodEffortPlaceholder.textContent = `Effort: ${data.effort}`;
 
             } else {
                 console.error("Failed to fetch data");
@@ -127,7 +143,6 @@
 
     const weeklyFoodsDisplay = document.getElementById("weekly-foods");
     const selectWeeklyButton = document.getElementById("select-weekly-food");
-
 
     selectWeeklyButton.addEventListener("click", async () => {
         try {
