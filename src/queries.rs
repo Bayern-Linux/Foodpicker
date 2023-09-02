@@ -6,9 +6,12 @@ pub async fn write_food_choice_to_db(
     pool: &Pool<Postgres>,
     food_choice: FoodChoice,
 ) -> Result<(), sqlx::Error> {
-    // TODO: Check if food_choice already exists in postgres.sql if so, update it
-    sqlx::query!(
-        "INSERT INTO food_choice (name, price, effort, tag) VALUES ($1, $2, $3, $4)",
+    let result = sqlx::query!(
+        "INSERT INTO food_choice (name, price, effort, tag)
+         VALUES ($1, $2, $3, $4)
+         ON CONFLICT (name, tag)
+         DO UPDATE
+         SET price = EXCLUDED.price, effort = EXCLUDED.effort",
         food_choice.name,
         food_choice.price as Affordability,
         food_choice.effort as Affordability,
@@ -18,6 +21,7 @@ pub async fn write_food_choice_to_db(
     .await?;
     Ok(())
 }
+
 // Delete food choice from postgres.sql via sqlx
 pub async fn delete_food_choice_from_db(
     pool: &Pool<Postgres>,

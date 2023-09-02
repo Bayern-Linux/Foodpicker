@@ -1,11 +1,12 @@
 use crate::food_choice::{Calendar, FoodChoice, Place};
 use crate::{maps, queries, AppState};
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, post, web, HttpResponse, Responder};
 use google_maps::LatLng;
 use liquid::{object, Template};
 use rand::prelude::SliceRandom;
 use rand::thread_rng;
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 use std::fs::read_to_string;
 use std::path::Path;
 use tracing::info;
@@ -45,10 +46,18 @@ pub(crate) async fn send_food_choice(
     HttpResponse::Ok()
 }
 
-#[get("/get-food-choice?tag={tag}")]
-pub(crate) async fn get_food_choice(data: web::Data<AppState>, tag: web::Query<Place>) -> impl Responder {
-    // TODO: Get a tag so it can only return a food choice that matches that tag
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Wrapper {
+    tag: Place,
+}
+
+#[get("/get-food-choice")]
+pub(crate) async fn get_food_choice(
+    data: web::Data<AppState>,
+    wrapper: web::Query<Wrapper>,
+) -> impl Responder {
     info!("Getting food choice");
+    let tag = wrapper.tag;
     let pool = data.pool.lock().await.clone();
     let food_choice = queries::read_random_food_choice_from_db(&pool, 1, tag)
         .await
@@ -56,11 +65,14 @@ pub(crate) async fn get_food_choice(data: web::Data<AppState>, tag: web::Query<P
     HttpResponse::Ok().json(food_choice.first())
 }
 #[get("/get-food-choice-week")]
-pub(crate) async fn get_food_choice_week(data: web::Data<AppState>) -> impl Responder {
-    // TODO: Get a tag so it can only return a food choice that matches that tag
+pub(crate) async fn get_food_choice_week(
+    data: web::Data<AppState>,
+    wrapper: web::Query<Wrapper>,
+) -> impl Responder {
     info!("Getting food choice");
+    let tag = wrapper.tag;
     let pool = data.pool.lock().await.clone();
-    let food_choice = queries::read_random_food_choice_from_db(&pool, 7)
+    let food_choice = queries::read_random_food_choice_from_db(&pool, 7, tag)
         .await
         .unwrap();
     HttpResponse::Ok().json(food_choice)

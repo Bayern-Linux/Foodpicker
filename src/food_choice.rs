@@ -5,7 +5,7 @@ pub enum Affordability {
     Medium,
     High,
 }
-#[derive(sqlx::Type, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(sqlx::Type, Debug, serde::Serialize, serde::Deserialize, Copy, Clone)]
 #[sqlx(type_name = "place", rename_all = "lowercase")]
 pub enum Place {
     Home,

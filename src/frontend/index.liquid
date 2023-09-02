@@ -58,6 +58,7 @@
 </div>
 
 <script>
+    const today = new Date();
     document.getElementById("submit-button").addEventListener("click", async () => {
         const formData = new FormData(document.getElementById("food-form"));
         const data = {
@@ -89,7 +90,7 @@
 
     document.getElementById("select-food").addEventListener("click", async () => {
         try {
-            const response = await fetch("/get-food-choice", {
+            const response = await fetch("/get-food-choice?tag=Home", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -123,30 +124,12 @@
         }
     });
 
-
-    function getNextMonday() {
-        const today = new Date();
-        const daysUntilNextMonday = 1 + (7 - today.getDay()) % 7;
-        const nextMonday = new Date(today.getTime() + daysUntilNextMonday * 24 * 60 * 60 * 1000);
-        return nextMonday;
-    }
-
-    function formatDate(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    const nextMonday = getNextMonday();
-    let weeklyData = []; // Store the fetched weekly data here
-
     const weeklyFoodsDisplay = document.getElementById("weekly-foods");
     const selectWeeklyButton = document.getElementById("select-weekly-food");
 
     selectWeeklyButton.addEventListener("click", async () => {
         try {
-            const response = await fetch("/get-food-choice-week", {
+            const response = await fetch("/get-food-choice-week?tag=Home", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -157,17 +140,17 @@
                 weeklyData = await response.json(); // Store the fetched data
                 weeklyFoodsDisplay.innerHTML = ""; // Clear previous content
 
+
                 // Loop through each meal and display them with dates
                 for (let i = 0; i < weeklyData.length; i++) {
                     const meal = weeklyData[i];
-                    const mealDate = new Date(nextMonday.getTime() + i * 24 * 60 * 60 * 1000);
-
-                    const formattedDate = `${mealDate.getDate()}.${mealDate.getMonth() + 1}.${mealDate.getFullYear()}`;
+                    const formattedDate = `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`;
                     const mealElement = document.createElement("p");
                     mealElement.textContent = `${formattedDate}: ${meal.name}`;
                     weeklyFoodsDisplay.appendChild(mealElement);
+                    // Increment the date for the next meal (if needed)
+                    today.setDate(today.getDate() + 1);
                 }
-
             } else {
                 console.error("Failed to fetch weekly data");
             }
@@ -179,11 +162,12 @@
     const exportButton = document.getElementById("export-calendar");
     exportButton.addEventListener("click", async () => {
         try {
-            const icsContent = generateICSContent(weeklyData.map((meal, index) => ({
-                id: index + 1,
-                date: new Date(nextMonday.getTime() + index * 24 * 60 * 60 * 1000),
-                name: meal.name,
-            })));
+        const icsContent = generateICSContent(weeklyData.map((meal, index) => ({
+            id: index + 1,
+            date: new Date(today.getTime() + index * 24 * 60 * 60 * 1000), // Use today's date
+            name: meal.name,
+        })));
+
 
             const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
             const blobUrl = URL.createObjectURL(blob);
