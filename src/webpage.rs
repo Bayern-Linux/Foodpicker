@@ -22,7 +22,7 @@ pub(crate) fn liquid_parse(path: impl AsRef<Path>) -> Template {
 
 #[get("/")]
 pub(crate) async fn index() -> HttpResponse {
-    let body = read_to_string("src/frontend/index.liquid").unwrap();
+    let body = read_to_string("frontend/index.html").unwrap();
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
         .body(body)
