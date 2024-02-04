@@ -16,6 +16,7 @@
         <p class="text-md" id="food-effort-placeholder">Effort: </p>
     </div>
     <button id="select-food" class="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Select Food</button>
+    <button id="delete-food" class="mt-4 bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600">Delete Food</button>
 </div>
 
 <div class="bg-white shadow p-6 rounded-lg mr-8">
@@ -123,6 +124,41 @@
             console.error("An error occurred", error);
         }
     });
+    document.getElementById("delete-food").addEventListener("click", async () => {
+        const foodNamePlaceholder = document.getElementById("food-name-placeholder");
+        const foodPricePlaceholder = document.getElementById("food-price-placeholder");
+        const foodEffortPlaceholder = document.getElementById("food-effort-placeholder");
+        const reversePsychology = {
+            "Price: 🪙": "Low",
+            "Medium": "🪙🪙",
+            "Effort: High": "High",
+            "Effort: Low": "Low"
+        };
+        try {
+            const response = await fetch("/delete-food-choice", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: foodNamePlaceholder.textContent,
+                    price: reversePsychology[foodPricePlaceholder.textContent],
+                    effort: reversePsychology[foodEffortPlaceholder.textContent],
+                    tag: "Home"
+                }),
+            });
+
+            if (response.ok) {
+                console.log("Food choice deleted successfully");
+                // Clear the placeholders or perform any necessary actions
+            } else {
+                console.error("Failed to delete food choice");
+            }
+        } catch (error) {
+            console.error("An error occurred", error);
+        }
+    });
+
 
     const weeklyFoodsDisplay = document.getElementById("weekly-foods");
     const selectWeeklyButton = document.getElementById("select-weekly-food");

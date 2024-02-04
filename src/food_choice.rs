@@ -15,12 +15,23 @@ pub enum Place {
 #[derive(
     Debug, sqlx::FromRow, sqlx::Encode, sqlx::Decode, serde::Serialize, serde::Deserialize,
 )]
+pub struct FoodChoiceRequest {
+    pub(crate) name: String,
+    // Cheap, Expensive, or Moderate
+    pub(crate) price: Affordability,
+    pub(crate) effort: Affordability,
+    pub(crate) tag: Place,
+}
+#[derive(
+    Debug, sqlx::FromRow, sqlx::Encode, sqlx::Decode, serde::Serialize, serde::Deserialize,
+)]
 pub struct FoodChoice {
     pub(crate) name: String,
     // Cheap, Expensive, or Moderate
     pub(crate) price: Affordability,
     pub(crate) effort: Affordability,
     pub(crate) tag: Place,
+    pub(crate) owner: String,
 }
 
 #[derive(Debug, serde::Serialize, serde::Deserialize)]

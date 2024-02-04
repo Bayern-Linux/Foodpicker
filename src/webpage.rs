@@ -1,6 +1,9 @@
-use crate::food_choice::{Calendar, FoodChoice, Place};
+use crate::food_choice::{Calendar, FoodChoice, FoodChoiceRequest, Place};
 use crate::{maps, queries, AppState};
-use actix_web::{get, post, web, HttpResponse, Responder};
+use actix_web::http::header::{HeaderName, HeaderValue};
+use actix_web::web::Header;
+use actix_web::{get, http::header, post, web, HttpRequest, HttpResponse, Responder};
+use google_maps::places::query_autocomplete::Request;
 use google_maps::LatLng;
 use liquid::{object, Template};
 use rand::prelude::SliceRandom;
@@ -30,8 +33,9 @@ pub(crate) async fn index() -> HttpResponse {
 
 #[post("/send-food-choice")]
 pub(crate) async fn send_food_choice(
-    food_choice: web::Json<FoodChoice>,
+    food_choice: web::Json<FoodChoiceRequest>,
     data: web::Data<AppState>,
+    request: HttpRequest,
 ) -> impl Responder {
     // HACK: This should be a pool that is passed in from main.rs
     let pool = data.pool.lock().await.clone();
@@ -41,6 +45,7 @@ pub(crate) async fn send_food_choice(
         price: food_choice.price,
         effort: food_choice.effort,
         tag: food_choice.tag,
+        owner: String::from(request.headers().get("host").unwrap().to_str().unwrap()),
     };
     let _ = queries::write_food_choice_to_db(&pool, food_choice).await;
     HttpResponse::Ok()
@@ -55,24 +60,49 @@ pub struct Wrapper {
 pub(crate) async fn get_food_choice(
     data: web::Data<AppState>,
     wrapper: web::Query<Wrapper>,
+    request: HttpRequest,
 ) -> impl Responder {
     info!("Getting food choice");
     let tag = wrapper.tag;
+    let owner = String::from(request.headers().get("host").unwrap().to_str().unwrap());
     let pool = data.pool.lock().await.clone();
-    let food_choice = queries::read_random_food_choice_from_db(&pool, 1, tag)
+    let food_choice = queries::read_random_food_choice_from_db(&pool, 1, tag, owner)
         .await
         .unwrap();
     HttpResponse::Ok().json(food_choice.first())
 }
+
+#[post("/delete-food-choice")]
+pub(crate) async fn delete_food_choice(
+    data: web::Data<AppState>,
+    food_choice: web::Json<FoodChoiceRequest>,
+    request: HttpRequest,
+) -> impl Responder {
+    info!("Deleting food choice");
+    let pool = data.pool.lock().await.clone();
+    let food_choice = food_choice.into_inner();
+    let food_choice = FoodChoice {
+        name: food_choice.name,
+        price: food_choice.price,
+        effort: food_choice.effort,
+        tag: food_choice.tag,
+        owner: String::from(request.headers().get("host").unwrap().to_str().unwrap()),
+    };
+    let _ = queries::delete_food_choice_from_db(&pool, food_choice).await;
+    HttpResponse::Ok()
+}
 #[get("/get-food-choice-week")]
 pub(crate) async fn get_food_choice_week(
     data: web::Data<AppState>,
+    request: HttpRequest,
     wrapper: web::Query<Wrapper>,
 ) -> impl Responder {
     info!("Getting food choice");
     let tag = wrapper.tag;
+    let owner = String::from(request.headers().get("host").unwrap().to_str().unwrap());
+    info!("Owner: {}", owner);
     let pool = data.pool.lock().await.clone();
-    let food_choice = queries::read_random_food_choice_from_db(&pool, 7, tag)
+    let food_choice = queries::read_random_food_choice_from_db(&pool, 7, tag, owner)
         .await
         .unwrap();
     HttpResponse::Ok().json(food_choice)

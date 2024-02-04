@@ -7,8 +7,8 @@ pub async fn write_food_choice_to_db(
     food_choice: FoodChoice,
 ) -> Result<(), sqlx::Error> {
     let result = sqlx::query!(
-        "INSERT INTO food_choice (name, price, effort, tag)
-         VALUES ($1, $2, $3, $4)
+        "INSERT INTO food_choice (name, price, effort, tag, owner)
+         VALUES ($1, $2, $3, $4, $5)
          ON CONFLICT (name, tag)
          DO UPDATE
          SET price = EXCLUDED.price, effort = EXCLUDED.effort",
@@ -16,6 +16,7 @@ pub async fn write_food_choice_to_db(
         food_choice.price as Affordability,
         food_choice.effort as Affordability,
         food_choice.tag as Place,
+        food_choice.owner
     )
     .execute(pool)
     .await?;
@@ -26,12 +27,12 @@ pub async fn write_food_choice_to_db(
 pub async fn delete_food_choice_from_db(
     pool: &Pool<Postgres>,
     food_choice: FoodChoice,
-    food_tag: Place,
 ) -> Result<(), sqlx::Error> {
     sqlx::query!(
-        "DELETE FROM food_choice WHERE name = $1 AND tag = $2",
+        "DELETE FROM food_choice WHERE name = $1 AND tag = $2 AND owner = $3",
         food_choice.name,
-        food_tag as Place,
+        food_choice.tag as Place,
+        food_choice.owner
     )
     .execute(pool)
     .await?;
@@ -45,7 +46,7 @@ pub async fn read_food_choice_from_db(
 ) -> Result<FoodChoice, sqlx::Error> {
     let food_choice = sqlx::query_as!(
         FoodChoice,
-        r#"SELECT name, price as "price: _", effort as "effort: _", tag as "tag: _" FROM food_choice WHERE name = $1"#,
+        r#"SELECT name, price as "price: _", effort as "effort: _", tag as "tag: _", owner FROM food_choice WHERE name = $1"#,
         name
     )
     .fetch_one(pool)
@@ -57,11 +58,13 @@ pub async fn read_random_food_choice_from_db(
     pool: &Pool<Postgres>,
     amount: i64,
     tag: Place,
+    owner: String,
 ) -> Result<Vec<FoodChoice>, sqlx::Error> {
     let food_choices = sqlx::query_as!(
         FoodChoice,
-        r#"SELECT name, price as "price: _", effort as "effort: _", tag as "tag: _" FROM food_choice WHERE tag = $1 ORDER BY RANDOM() LIMIT $2"#,
+        r#"SELECT name, price as "price: _", effort as "effort: _", tag as "tag: _", owner FROM food_choice WHERE tag = $1 and owner = $2 ORDER BY RANDOM() LIMIT $3"#,
         tag as Place,
+        owner,
         amount
     )
         .fetch_all(pool)
