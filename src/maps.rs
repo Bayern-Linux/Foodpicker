@@ -1,9 +1,6 @@
-use google_maps::directions::Location;
-use google_maps::distance_matrix::TravelMode;
 use google_maps::prelude::Decimal;
 use google_maps::prelude::Place as MapsPlace;
 use google_maps::LatLng;
-use tracing::info;
 
 pub async fn find_food_nearby(
     location: LatLng,

@@ -16,6 +16,7 @@
         <p class="text-md" id="food-effort-placeholder">Effort: </p>
     </div>
     <button id="select-food" class="mt-4 bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600">Select Food</button>
+    <button id="delete-food" class="mt-4 bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600">Delete Food</button>
 </div>
 
 <div class="bg-white shadow p-6 rounded-lg mr-8">
@@ -58,6 +59,7 @@
 </div>
 
 <script>
+    const today = new Date();
     document.getElementById("submit-button").addEventListener("click", async () => {
         const formData = new FormData(document.getElementById("food-form"));
         const data = {
@@ -89,7 +91,7 @@
 
     document.getElementById("select-food").addEventListener("click", async () => {
         try {
-            const response = await fetch("/get-food-choice", {
+            const response = await fetch("/get-food-choice?tag=Home", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -122,32 +124,48 @@
             console.error("An error occurred", error);
         }
     });
+    document.getElementById("delete-food").addEventListener("click", async () => {
+        const foodNamePlaceholder = document.getElementById("food-name-placeholder");
+        const foodPricePlaceholder = document.getElementById("food-price-placeholder");
+        const foodEffortPlaceholder = document.getElementById("food-effort-placeholder");
+        const reversePsychology = {
+            "Price: 🪙": "Low",
+            "Medium": "🪙🪙",
+            "Effort: High": "High",
+            "Effort: Low": "Low"
+        };
+        try {
+            const response = await fetch("/delete-food-choice", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    name: foodNamePlaceholder.textContent,
+                    price: reversePsychology[foodPricePlaceholder.textContent],
+                    effort: reversePsychology[foodEffortPlaceholder.textContent],
+                    tag: "Home"
+                }),
+            });
 
+            if (response.ok) {
+                console.log("Food choice deleted successfully");
+                // Clear the placeholders or perform any necessary actions
+            } else {
+                console.error("Failed to delete food choice");
+            }
+        } catch (error) {
+            console.error("An error occurred", error);
+        }
+    });
 
-    function getNextMonday() {
-        const today = new Date();
-        const daysUntilNextMonday = 1 + (7 - today.getDay()) % 7;
-        const nextMonday = new Date(today.getTime() + daysUntilNextMonday * 24 * 60 * 60 * 1000);
-        return nextMonday;
-    }
-
-    function formatDate(date) {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
-    const nextMonday = getNextMonday();
-    let weeklyData = []; // Store the fetched weekly data here
 
     const weeklyFoodsDisplay = document.getElementById("weekly-foods");
     const selectWeeklyButton = document.getElementById("select-weekly-food");
 
-
     selectWeeklyButton.addEventListener("click", async () => {
         try {
-            const response = await fetch("/get-food-choice-week", {
+            const response = await fetch("/get-food-choice-week?tag=Home", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -158,17 +176,17 @@
                 weeklyData = await response.json(); // Store the fetched data
                 weeklyFoodsDisplay.innerHTML = ""; // Clear previous content
 
+
                 // Loop through each meal and display them with dates
                 for (let i = 0; i < weeklyData.length; i++) {
                     const meal = weeklyData[i];
-                    const mealDate = new Date(nextMonday.getTime() + i * 24 * 60 * 60 * 1000);
-
-                    const formattedDate = `${mealDate.getDate()}.${mealDate.getMonth() + 1}.${mealDate.getFullYear()}`;
+                    const formattedDate = `${today.getDate()}.${today.getMonth() + 1}.${today.getFullYear()}`;
                     const mealElement = document.createElement("p");
                     mealElement.textContent = `${formattedDate}: ${meal.name}`;
                     weeklyFoodsDisplay.appendChild(mealElement);
+                    // Increment the date for the next meal (if needed)
+                    today.setDate(today.getDate() + 1);
                 }
-
             } else {
                 console.error("Failed to fetch weekly data");
             }
@@ -180,11 +198,12 @@
     const exportButton = document.getElementById("export-calendar");
     exportButton.addEventListener("click", async () => {
         try {
-            const icsContent = generateICSContent(weeklyData.map((meal, index) => ({
-                id: index + 1,
-                date: new Date(nextMonday.getTime() + index * 24 * 60 * 60 * 1000),
-                name: meal.name,
-            })));
+        const icsContent = generateICSContent(weeklyData.map((meal, index) => ({
+            id: index + 1,
+            date: new Date(today.getTime() + index * 24 * 60 * 60 * 1000), // Use today's date
+            name: meal.name,
+        })));
+
 
             const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
             const blobUrl = URL.createObjectURL(blob);
@@ -239,3 +258,4 @@
 </script>
 </body>
 </html>
+
