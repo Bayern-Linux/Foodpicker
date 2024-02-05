@@ -79,5 +79,5 @@ jobs:
           override: true
           components: clippy
 
-      - name: Run cargo clippy --package {{project-name}} --all-targets
-        run: cargo clippy --package {{project-name}} --all-targets
+      - name: Run cargo clippy
+        run: cargo clippy --package food-picker --all-targets
