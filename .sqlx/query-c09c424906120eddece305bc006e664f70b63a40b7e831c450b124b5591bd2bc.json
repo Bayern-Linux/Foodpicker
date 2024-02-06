@@ -1,0 +1,92 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT name, price as \"price: _\", effort as \"effort: _\", tag as \"tag: _\", owner FROM food_choice WHERE tag = $1 and owner = $2 ORDER BY RANDOM() LIMIT $3",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "price: _",
+        "type_info": {
+          "Custom": {
+            "name": "affordability",
+            "kind": {
+              "Enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "effort: _",
+        "type_info": {
+          "Custom": {
+            "name": "affordability",
+            "kind": {
+              "Enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "tag: _",
+        "type_info": {
+          "Custom": {
+            "name": "place",
+            "kind": {
+              "Enum": [
+                "home",
+                "restaurant",
+                "takeout"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "owner",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        {
+          "Custom": {
+            "name": "place",
+            "kind": {
+              "Enum": [
+                "home",
+                "restaurant",
+                "takeout"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Int8"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "c09c424906120eddece305bc006e664f70b63a40b7e831c450b124b5591bd2bc"
+}

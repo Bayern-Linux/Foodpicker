@@ -1,0 +1,51 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO food_choice (name, price, effort, tag, owner)\n         VALUES ($1, $2, $3, $4, $5)\n         ON CONFLICT (name, tag)\n         DO UPDATE\n         SET price = EXCLUDED.price, effort = EXCLUDED.effort",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "affordability",
+            "kind": {
+              "Enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "affordability",
+            "kind": {
+              "Enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "place",
+            "kind": {
+              "Enum": [
+                "home",
+                "restaurant",
+                "takeout"
+              ]
+            }
+          }
+        },
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9a87193354875cd01ab927ce50dead1c3b910c498f598f0d46ad8d627271daee"
+}

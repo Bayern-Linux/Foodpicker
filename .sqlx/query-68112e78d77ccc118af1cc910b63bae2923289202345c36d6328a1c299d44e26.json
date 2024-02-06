@@ -1,0 +1,27 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "DELETE FROM food_choice WHERE name = $1 AND tag = $2 AND owner = $3",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "place",
+            "kind": {
+              "Enum": [
+                "home",
+                "restaurant",
+                "takeout"
+              ]
+            }
+          }
+        },
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "68112e78d77ccc118af1cc910b63bae2923289202345c36d6328a1c299d44e26"
+}
