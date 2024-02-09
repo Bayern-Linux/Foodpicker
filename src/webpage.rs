@@ -45,7 +45,7 @@ pub(crate) async fn send_food_choice(
         price: food_choice.price,
         effort: food_choice.effort,
         tag: food_choice.tag,
-        owner: String::from(request.headers().get("host").unwrap().to_str().unwrap()),
+        owner: String::from(request.headers().get("referer").unwrap().to_str().unwrap()),
     };
     let _ = queries::write_food_choice_to_db(&pool, food_choice).await;
     HttpResponse::Ok()
@@ -64,7 +64,7 @@ pub(crate) async fn get_food_choice(
 ) -> impl Responder {
     info!("Getting food choice");
     let tag = wrapper.tag;
-    let owner = String::from(request.headers().get("host").unwrap().to_str().unwrap());
+    let owner = String::from(request.headers().get("referer").unwrap().to_str().unwrap());
     let pool = data.pool.lock().await.clone();
     let food_choice = queries::read_random_food_choice_from_db(&pool, 1, tag, owner)
         .await
